@@ -13,23 +13,28 @@ This extension has (only) been tested with Wordpress. If you have a Wordpress.or
 * [Micropub](https://wordpress.org/plugins/micropub/)
 * [Post Kinds](https://wordpress.org/plugins/indieweb-post-kinds/)
 
-You can find your micropub endpoint in the `rel="micropub"` header when doing a `GET` request on your Wordpress site's home page. With "pretty permalinks" configured (not `?p=n`), your Micropub endpoint may be at `https://your-domain.org/wp-json/micropub/1.0/endpoint`. 
+You can find your micropub endpoint in the `rel="micropub"` header when doing a `GET` request on your Wordpress site's home page. With "pretty permalinks" configured (not `?p=XXX`), your Micropub endpoint may be at `https://your-domain.org/wp-json/micropub/1.0/endpoint`. 
 
 I have no idea how to properly get an authentication token, but here's what worked for me. Taking advantage of [Quill](https://quill.p3k.io/), go there and enter your wordpress URL to sign in. You will need:
 
-* at least one `rel="me"` link on your homepage that supports IndieAuth. This could be a social account or your wordpress site itself. One way of doing this is by placing the `rel-me` widget provided by the IndieWeb plugin to an area on your site, configuring the options under IndieWeb > Options, and adding your socials to their respective fields, or your Wordpress homepage to the "Other Sites" box at the bottom of your User Profile (oddly, the "Website" field doesn't seem to create a rel-me link). 
-* If using your Wordpress site as an auth endpoint, install and activate [IndieAuth](https://wordpress.org/plugins/indieauth/) and if required, fix your .htaccess file. It consistently takes me two attempts to log in with Quill after doing this.
+* at least one `rel="me"` link on your homepage that supports IndieAuth. This could be a social account, or your wordpress site itself. One way of doing this is by placing the `rel-me` widget provided by the IndieWeb plugin to an area on your site, configuring the options under IndieWeb > Options, and adding your socials to their respective fields, or your Wordpress homepage to the "Other Sites" box, in your User Profile (oddly, the "Website" field doesn't seem to create a rel-me link). 
+* If using your Wordpress site as an auth endpoint, install and activate [IndieAuth](https://wordpress.org/plugins/indieauth/) and if required, fix your .htaccess file. It sometimes takes me two attempts to log in with Quill after doing this.
 
-When logged in initially with Quill, your user information, including the access token, is displayed on the screen. After login, it is also available under your user settings in Quill. Put this in the configuration form for this plugin.
+When logged in initially with Quill, your user information, including the access token, is displayed on the screen. After login, it is also available under your user settings in Quill. Put the access token in the configuration form for this plugin.
 
 Once this plugin has been configured with an endpoint and an access token, clicking the "favourite" (star) in FreshRSS will create a post in your wordpress site of type "Like", that points to the article that you liked.
 
 These likes will show up as very minimalistic posts in your feed and on your frontpage, but can be filtered out with the following in your theme's functions.php file:
 ```
-if ( $query->is_home OR $query->is_feed ) {
-	$query->set( 'exclude_kind', 'like,favorite');
-	}
-return $query;
+function exclude_likes_faves ($query) {
+        if ( $query->is_home OR $query->is_feed ) {
+                $query->set( 'exclude_kind', 'like,favorite');
+        }
+        return $query;
+}
+
+add_action('pre_get_posts', 'exclude_likes_faves' );
+
 ```
 
 If you want the authors of the posts to be informed of your actions, install and configure:
