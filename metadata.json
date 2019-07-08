@@ -1,0 +1,8 @@
+{
+        "name": "Micropub Likes",
+        "author": "Rosie Le Faive",
+        "description": "Send a like-of entry to a micropub endpoint when favoriting.",
+        "version": 0.1,
+        "entrypoint": "MicropubLike",
+        "type": "user"
+}
